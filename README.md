@@ -1,3 +1,3 @@
-# YACA
+# Yetaca
 
 Yet another chat app
