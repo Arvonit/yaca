@@ -42,7 +42,7 @@ export default function Chat() {
           <h1 className="text-3xl font-semibold">Chat</h1>
           <p>
             <button
-              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 border border-red-500 rounded"
+              className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 border border-red-500 rounded"
               onClick={signOut}
             >
               Sign Out
