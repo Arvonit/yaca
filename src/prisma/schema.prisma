@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// TODO: Check later if prisma has better support for multiple schemas
+// https://github.com/prisma/prisma/issues/1122
+// https://github.com/supabase/supabase/discussions/7659
+
+// TODO: Check later if supabase has support for pg_idkit
+// https://github.com/supabase/supabase/discussions/9500
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model Profile {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  username  String    @unique
+  authId    String    @unique @map("auth_id") @db.Uuid // Hold the corresponding `auth.users.id` field
+  messages  Message[]
+
+  @@map("profiles")
+}
+
+// TODO: For now, a message is sent to a single chat room. Later, a message should have a recipient
+// field to indicate which chat room or person it is meant for.
+model Message {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  content   String
+  timestamp DateTime @default(now()) @db.Timestamptz
+  sender_id String   @map("sender_id") @db.Uuid
+  sender    Profile  @relation(fields: [sender_id], references: [id])
+
+  @@map("messages")
+}

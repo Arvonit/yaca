@@ -1,3 +1,3 @@
 # Yetaca
 
-Yet another chat app
+Yet another chat app. Built with NextJS, Prisma, and Supabase.
