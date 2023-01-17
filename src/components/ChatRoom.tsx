@@ -10,7 +10,7 @@ export default function ChatRoom({ messages, users }: Props) {
     <>
       {messages.map(m => {
         return (
-          <p>
+          <p key={m.id}>
             <span className="font-light text-sm">
               {new Date(m.timestamp).toLocaleTimeString([], { timeStyle: 'short' })}
             </span>{' '}
