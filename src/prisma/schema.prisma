@@ -19,11 +19,11 @@ datasource db {
 }
 
 model Profile {
-  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  username  String    @unique
-  authId    String    @unique @map("auth_id") @db.Uuid // Hold the corresponding `auth.users.id` field
-  messages  Message[]
+  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  created_at DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  username   String    @unique
+  auth_id    String    @unique @map("auth_id") @db.Uuid // Hold the corresponding `auth.users.id` field
+  messages   Message[]
 
   @@map("profiles")
 }

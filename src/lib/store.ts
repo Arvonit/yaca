@@ -5,13 +5,17 @@ import { useState, useEffect } from 'react';
 
 export function useStore(supabase: SupabaseClient) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [users] = useState<Map<string, Profile>>(new Map());
+  const [users, setUsers] = useState<Map<string, Profile>>(new Map());
   const [newMessage, handleNewMessage] = useState<Message | null>(null);
   const [newOrUpdatedUser, handleNewOrUpdatedUser] = useState<Profile | null>(null);
   const [deletedMessage, handleDeletedMessage] = useState<Message | null>(null);
 
   // Load initial data and set up listeners
   useEffect(() => {
+    // Get messages
+    fetchMessages(supabase, setMessages);
+    // Get users
+    fetchUsers(supabase, setUsers);
     // Listen for new and deleted messages
     const messageListener = supabase
       .channel('public:messages')
@@ -63,7 +67,7 @@ export function useStore(supabase: SupabaseClient) {
 
   return {
     // We can export computed values here to map the authors to each message
-    messages: messages.map(x => ({ ...x, sender: users.get(x.sender_id) })),
+    messages,
     users
   };
 }
@@ -82,6 +86,24 @@ export async function fetchUser(supabase: SupabaseClient, userId: string, setSta
     let user = data[0];
     if (setState) setState(user);
     return user;
+  } catch (error) {
+    console.log('error', error);
+  }
+}
+
+export async function fetchUsers(supabase: SupabaseClient, setState: any) {
+  try {
+    let { data, error } = await supabase.from('profiles').select(`*`);
+    if (error || !data) {
+      throw error;
+    }
+    const users = new Map(
+      data.map((element: Profile) => {
+        return [element.id, element];
+      })
+    );
+    if (setState) setState(users);
+    return users;
   } catch (error) {
     console.log('error', error);
   }
@@ -107,10 +129,14 @@ export async function fetchMessages(supabase: SupabaseClient, setState: any) {
 /**
  * Insert a new message into the DB
  */
-export async function addMessage(supabase: SupabaseClient, content: string, sender_id: string) {
+export async function addMessage(
+  supabase: SupabaseClient,
+  content: string,
+  sender_id: string
+): Promise<Message[] | undefined> {
   try {
     let { data } = await supabase.from('messages').insert([{ content, sender_id }]).select();
-    return data;
+    return data as Message[];
   } catch (error) {
     console.log('error', error);
   }
@@ -127,4 +153,15 @@ export async function deleteMessage(supabase: SupabaseClient, message_id: string
   } catch (error) {
     console.log('error', error);
   }
+}
+
+// This is a hack
+export function getUserByAuthId(users: Map<string, Profile>, authId: string): Profile | undefined {
+  let user: Profile | undefined;
+  users.forEach((value, _) => {
+    if (value.auth_id == authId) {
+      user = value;
+    }
+  });
+  return user;
 }

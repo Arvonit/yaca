@@ -3,7 +3,8 @@ import { useSession, useSessionContext, useSupabaseClient } from '@supabase/auth
 import { createServerSupabaseClient, withPageAuth } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/router';
 import ChatRoom from '../../components/ChatRoom';
-import { useStore } from '../../lib/store';
+import { addMessage, getUserByAuthId, useStore } from '../../lib/store';
+import ChatInput from '../../components/ChatInput';
 
 export default function Chat() {
   const supabase = useSupabaseClient();
@@ -30,7 +31,7 @@ export default function Chat() {
     return <></>;
   }
 
-  // const username = session?.user.user_metadata.user_name;
+  const user = getUserByAuthId(users, session.user.id);
 
   return (
     <>
@@ -49,10 +50,13 @@ export default function Chat() {
           </p>
         </div>
 
-        <p>Welcome, user!</p>
+        {/* <p>Welcome, {user?.username}!</p> */}
         {/* <p>Welcome, {username}!</p> */}
         {/* <p>{messages.length}</p> */}
-        {/* <ChatRoom messages={messages} /> */}
+        <ChatRoom messages={messages} users={users} />
+        <div className="bottom-0 left-0 w-full">
+          <ChatInput onSubmit={async text => addMessage(supabase, text, user!.id)} />
+        </div>
       </div>
     </>
   );
